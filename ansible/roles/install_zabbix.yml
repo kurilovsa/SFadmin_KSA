@@ -1,0 +1,24 @@
+---
+- hosts: servers
+  become: yes
+  tasks:
+    - name: Install dependencies and Zabbix agent
+      apt:
+        name:
+          - zabbix-agent
+        state: present
+        update_cache: yes
+
+    - name: Configure Zabbix agent (optional - add your server's IP in `Server` field)
+      lineinfile:
+        path: /etc/zabbix/zabbix_agentd.conf
+        regexp: '^#?Server='
+        line: 'Server=127.0.0.1,{{ ansible_ssh_host }}'  # Modify with your Zabbix server IP
+        state: present
+
+    - name: Enable and start Zabbix agent service
+      systemd:
+        name: zabbix-agent
+        enabled: yes
+        state: started
+
